@@ -2,6 +2,10 @@
 
 [Open the offline gallery](gallery.html). SVGs are editable sources; PNGs are exported at 2400 pixels wide. The gallery uses the same artwork without external services or fonts.
 
+## AIS reception network
+
+[How AIS works](ais/01-how-ais-works.svg): Class A and Class B vessel transponders, ship-to-ship and shore reception, and low Earth orbit satellite collection with a ground downlink. [Standalone preview](ais/01-how-ais-works.html).
+
 ## Identity and tracks
 
 1. [Shared MMSI](identity/01-shared-mmsi.svg): preserve independent movement sequences for vessels reporting the same identifier.

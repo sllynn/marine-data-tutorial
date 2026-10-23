@@ -9,6 +9,8 @@ Two Databricks notebooks accompany the blog: resolve position reports into plaus
 | [01 · Identity, tracks and late data](notebooks/01_identity_tracks_and_late_data.py) | H3 candidate generation, spatial motion checks, distributed track replay and an introduction to registry identity evidence |
 | [02 · Port and berth callings](notebooks/02_port_and_berth_callings.py) | Indexed location matching, consecutive inside runs, departure evidence and atomic publication of corrected calling histories |
 
+The [generator-backed end-to-end companion](streaming-demo/README.md) connects generated receptions, track resolution, registry association and calling publication. A third teaching example for anomaly detection is planned.
+
 Read them in order. Each notebook generates its own small synthetic dataset and runs independently. Notebook 2 begins with resolved `vessel_id` values in its fixture. The first notebook illustrates registry association separately from its streamed track output.
 
 ## Run in Databricks
@@ -37,7 +39,7 @@ The first notebook keeps receptions in Bronze and publishes accepted positions w
 
 ## Illustrations
 
-Open the [offline illustration gallery](illustrations/gallery.html) for all eight figures. Each has an editable SVG and a 2400-pixel PNG export. The [figure guide](illustrations/README.md) maps them to the notebook sections and explains the future segment-linking illustration.
+Open the [offline illustration gallery](illustrations/gallery.html) for all nine figures. Each has an editable SVG and a 2400-pixel PNG export. The [figure guide](illustrations/README.md) maps them to the notebook sections and explains the future segment-linking illustration.
 
 The calling illustrations cover nested locations, position-numbering islands and late corrections. The identity illustrations cover shared MMSIs, late bridges, time boundaries, H3 motion gates and segment-to-vessel association.
 

@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1050" role="img" aria-labelledby="ais-title ais-desc">
+<title id="ais-title">How AIS reports reach the world</title><desc id="ais-desc">Class A transponders on a cargo ship and passenger ferry and a Class B transponder on a sailing yacht broadcast AIS messages over VHF. Nearby vessels and coastal stations receive the messages directly. Low Earth orbit satellites also receive the broadcasts and relay collected reports through ground stations to data services.</desc>
+<defs>
+<linearGradient id="sea" x2="0" y2="1"><stop stop-color="#f0f9fa"/><stop offset="1" stop-color="#d9eff0"/></linearGradient>
+<marker id="teal-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10" fill="#087f8c"/></marker>
+<marker id="gold-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10" fill="#cb6329"/></marker>
+<marker id="grey-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10" fill="#61716e"/></marker>
+<style>text{font-family:Arial,Helvetica,sans-serif;fill:#172321}.title{font-size:42px;font-weight:700;letter-spacing:-1px}.sub{font-size:22px;fill:#61716e}.label{font-size:23px;font-weight:700}.small{font-size:19px;fill:#61716e}.tiny{font-size:17px;fill:#61716e}.teal{fill:#087f8c}.gold{fill:#b45a25}.radio{fill:none;stroke:#087f8c;stroke-width:3.5;stroke-linecap:round}.satlink{fill:none;stroke:#cb6329;stroke-width:3;stroke-dasharray:9 9;marker-end:url(#gold-arrow)}.link{fill:none;stroke:#087f8c;stroke-width:4;marker-end:url(#teal-arrow)}.card{fill:white;stroke:#dbe5e3;stroke-width:1.5}</style></defs>
+<g id="ais-background"><title>AIS overview</title><rect width="1600" height="1050" rx="24" fill="#fff"/><text x="60" y="72" class="title">How AIS reports reach the world</text><text x="60" y="111" class="sub">One vessel broadcast can be heard by ships, shore stations and satellites.</text>
+<rect x="40" y="145" width="1520" height="650" rx="22" fill="#f7faf9"/>
+<path d="M40 520Q380 490 740 520T1450 510L1560 565V773Q1560 795 1538 795H62Q40 795 40 773Z" fill="url(#sea)"/>
+<path d="M1280 403Q1330 415 1340 455T1395 511Q1425 532 1430 580T1500 657L1560 668V167Q1560 145 1538 145H1290Z" fill="#e4eae0"/>
+<path d="M1280 403Q1330 415 1340 455T1395 511Q1425 532 1430 580T1500 657" fill="none" stroke="#bdcdbf" stroke-width="3"/>
+<path d="M95 747H225M400 753H540M785 753H910M1120 756H1260" stroke="#badcde" stroke-width="3" stroke-linecap="round"/>
+</g>
+<g id="broadcast-content"><title>Contents of an AIS broadcast</title><rect x="70" y="174" width="420" height="181" rx="16" class="card"/><text x="95" y="211" class="label">An AIS message</text><text x="95" y="247" class="small">MMSI • position • observation time</text><text x="95" y="279" class="small">Speed • course • navigation status</text><text x="95" y="319" class="tiny">Other messages carry vessel details.</text></g>
+<g id="satellite-paths"><title>Satellites receive the same VHF broadcasts</title>
+<path d="M305 545Q475 337 760 233" class="satlink"/><path d="M674 558Q706 380 792 240" class="satlink"/><path d="M1035 571Q965 363 836 240" class="satlink"/>
+<text x="526" y="333" class="small gold" transform="rotate(-27 526 333)">VHF reception from orbit</text>
+<path d="M881 214Q1117 174 1370 281" class="satlink"/>
+<rect x="1000" y="155" width="207" height="38" rx="19" fill="#fff"/><text x="1104" y="181" text-anchor="middle" class="small gold">Satellite downlink</text>
+</g>
+<g id="leo-satellite" transform="translate(810 215)"><title>A low Earth orbit AIS receiver</title><path d="M-265 -16Q-10 -123 245 -7" fill="none" stroke="#d8dfdf" stroke-width="2" stroke-dasharray="6 8"/>
+<g transform="rotate(-14)"><rect x="-105" y="-27" width="69" height="49" rx="3" fill="#42677d"/><path d="M-83 -27V22M-60 -27V22M-105 -3H-36" stroke="#9fc3d4" stroke-width="2"/><rect x="36" y="-27" width="69" height="49" rx="3" fill="#42677d"/><path d="M59 -27V22M82 -27V22M36 -3H105" stroke="#9fc3d4" stroke-width="2"/><rect x="-27" y="-35" width="54" height="66" rx="8" fill="#f2ddbd" stroke="#cb6329" stroke-width="2"/><path d="M-36 -2H-27M27 -2H36M0 31V53M-12 53H12" stroke="#61716e" stroke-width="4"/></g>
+<text x="0" y="-77" text-anchor="middle" class="label">Low Earth orbit satellite</text></g>
+<g id="local-reception"><title>Local VHF reception between ships and coastal stations</title>
+<path d="M323 550Q482 474 651 561" class="link" marker-start="url(#teal-arrow)"/><rect x="406" y="484" width="187" height="36" rx="18" fill="white"/><text x="500" y="509" text-anchor="middle" class="small teal">Ship-to-ship</text>
+<path d="M695 554Q1000 413 1318 492" class="link"/><rect x="955" y="439" width="212" height="38" rx="19" fill="white"/><text x="1061" y="465" text-anchor="middle" class="small teal">Ship-to-shore</text>
+<path d="M1053 574Q1185 514 1321 502" class="link"/>
+</g>
+<g id="cargo-ship" transform="translate(300 615)"><title>Cargo ship with Class A AIS transponder</title><path d="M-140 0H145L117 42H-112Z" fill="#264b55"/><path d="M-133 12H135" stroke="#5b8790" stroke-width="4"/>
+<rect x="-105" y="-35" width="56" height="32" rx="2" fill="#cb6329"/><rect x="-45" y="-35" width="56" height="32" rx="2" fill="#d59450"/><rect x="15" y="-35" width="56" height="32" rx="2" fill="#087f8c"/><rect x="-105" y="-70" width="56" height="31" rx="2" fill="#d59450"/><rect x="-45" y="-70" width="56" height="31" rx="2" fill="#b7d8d6"/><path d="M80 0V-62H124V0" fill="#fff" stroke="#61716e" stroke-width="2"/><rect x="86" y="-54" width="30" height="12" fill="#82b4bf"/>
+<path d="M5 -70V-94" class="radio"/><circle cx="5" cy="-94" r="5" fill="#087f8c"/><text x="0" y="85" text-anchor="middle" class="label">Cargo ship</text><text x="0" y="115" text-anchor="middle" class="small">Class A transponder</text></g>
+<g id="passenger-ferry" transform="translate(675 625)"><title>Passenger ferry with Class A AIS transponder</title><path d="M-115 0H120L95 32H-97Z" fill="#087f8c"/><path d="M-82 0V-45H72L101 0" fill="white" stroke="#61716e" stroke-width="2"/><path d="M-52 -45V-73H31L59 -45" fill="white" stroke="#61716e" stroke-width="2"/><path d="M-66 -24H62M-40 -59H25" stroke="#8ab5c0" stroke-width="11" stroke-dasharray="16 7"/>
+<path d="M0 -73V-99" class="radio"/><circle cx="0" cy="-99" r="5" fill="#087f8c"/><text x="0" y="75" text-anchor="middle" class="label">Passenger ferry</text><text x="0" y="105" text-anchor="middle" class="small">Class A transponder</text></g>
+<g id="sailing-yacht" transform="translate(1035 659)"><title>Sailing yacht with Class B AIS transponder</title><path d="M-75 0H83L57 27H-48Z" fill="#cb6329"/><path d="M0 -83V0" stroke="#61716e" stroke-width="4"/><path d="M-8 -75L-64 -8H-8Z" fill="white" stroke="#c3d3d1" stroke-width="2"/><path d="M8 -66L54 -8H8Z" fill="#f2ddbd" stroke="#d6bb94" stroke-width="2"/><path d="M0 -83V-99" class="radio"/><circle cy="-99" r="5" fill="#087f8c"/>
+<text x="0" y="57" text-anchor="middle" class="label">Sailing yacht</text><text x="0" y="87" text-anchor="middle" class="small">Class B transponder</text></g>
+<g id="shore-station" transform="translate(1341 500)"><title>Shore station receives local vessel broadcasts</title><path d="M-27 65L0 -15L27 65M-17 35H17M-10 12H10M0 -15V-36" fill="none" stroke="#42636a" stroke-width="4"/><circle cy="-36" r="5" fill="#087f8c"/><path d="M-15 -49Q-35 -36 -15 -23M15 -49Q35 -36 15 -23" class="radio"/><rect x="32" y="29" width="54" height="38" rx="3" fill="white" stroke="#9fb1ad" stroke-width="2"/>
+<text x="45" y="102" text-anchor="middle" class="label">Shore station</text></g>
+<g id="ground-station" transform="translate(1400 304)"><title>Ground station receives satellite downlink</title><path d="M-35 -13Q-9 25 21 -4Z" fill="white" stroke="#61716e" stroke-width="3"/><path d="M-8 5L-4 36M-24 37H14M-8 -1L-27 -33" stroke="#61716e" stroke-width="4"/><circle cx="-27" cy="-33" r="4" fill="#cb6329"/><text x="0" y="70" text-anchor="middle" class="label">Ground station</text></g>
+<g id="data-service"><title>Received reports flow to data services</title><path d="M1455 340V407M1421 552H1501V454" fill="none" stroke="#61716e" stroke-width="2.5" marker-end="url(#grey-arrow)"/>
+<rect x="1386" y="410" width="154" height="42" rx="10" fill="white" stroke="#b7c9c4" stroke-width="2"/><text x="1463" y="438" text-anchor="middle" class="small">Data services</text></g>
+<g id="reading-guide"><title>How to read this illustration</title><text x="65" y="851" class="label">One broadcast, several reception paths</text>
+<path d="M65 890H135" class="link"/><text x="152" y="897" class="small">Local VHF: nearby vessels and coastal stations</text>
+<path d="M830 890H900" class="satlink"/><text x="918" y="897" class="small">Satellite reception and relay to the ground</text>
+<text x="65" y="950" class="small">Class A is typically used on commercial ships; Class B is common on smaller craft.</text>
+<text x="65" y="982" class="small">Reception depends on radio range, antenna height and coverage. Satellite collection extends visibility offshore.</text>
+<text x="65" y="1020" class="tiny">Schematic • Vessel types illustrate common installations; AIS class describes the equipment.</text></g></svg>
