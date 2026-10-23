@@ -1,0 +1,19 @@
+seed: 42
+start_time: '2026-10-23T00:00:00Z'
+vessels: 100
+reports_per_vessel: 180
+cadence_seconds: 60
+release_seconds: 600
+speed_knots: [12, 20]
+port_dwell_minutes: 20
+jitter_metres: 5
+lane_sigma_metres: 20
+dropout_percent: 0.5
+duplicate_percent: 5
+lateness_percent: 5
+lateness_max_seconds: 1200
+ports:
+  - {name: Dover, lon: 1.335, lat: 51.115, region: Channel}
+  - {name: Calais, lon: 1.85, lat: 50.985, region: Channel}
+port_pairs:
+  - [Dover, Calais]

@@ -48,3 +48,7 @@ The calling illustrations cover nested locations, position-numbering islands and
 The calling implementation was exercised with 10,000, 100,000 and 1 million positions, varying both vessel count and history depth. Initial stream runs took approximately 20–25 seconds after warm-up; batches containing a late correction for every vessel took approximately 22–24 seconds. Calling counts, supporting-position counts and key uniqueness passed at every stage, with no reported spill.
 
 These were single serverless runs over two locations. Work increased with data volume even when elapsed time stayed similar. Small correction batches still caused broad history reads; clustering and data skipping are useful next measurements. The track resolver has different scaling characteristics: each grouped Pandas task holds one MMSI's positions and candidate edges in worker memory.
+
+## Generator and end-to-end job
+
+The [streaming companion](pipeline/README.md) provides a YAML-configured `searoute` fleet generator and a Lakeflow job that connects the notebook algorithms through Bronze, track Silver, resolved Silver and Gold callings. It includes release-to-Gold timings and end-to-end checks.

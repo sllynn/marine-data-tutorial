@@ -1,0 +1,43 @@
+bundle:
+  name: marine-data-tutorial
+artifacts:
+  pipeline_package:
+    type: whl
+    path: .
+    build: uv build --wheel
+variables:
+  catalog:
+    default: main
+  schema:
+    default: ais_pipeline_tutorial
+resources:
+  jobs:
+    ais_pipeline:
+      name: AIS tutorial — generated positions to calling history
+      max_concurrent_runs: 1
+      performance_target: PERFORMANCE_OPTIMIZED
+      tags:
+        aidevkit_project: ai-dev-kit
+      parameters:
+        - {name: catalog, default: '${var.catalog}'}
+        - {name: schema, default: '${var.schema}'}
+        - {name: vessels, default: ''}
+        - {name: reports, default: ''}
+      environments:
+        - environment_key: ais
+          spec:
+            environment_version: '6'
+            dependencies:
+              - ./dist/*.whl
+      tasks:
+        - task_key: generate_and_process
+          environment_key: ais
+          timeout_seconds: 14400
+          notebook_task:
+            notebook_path: ./notebooks/run_pipeline.py
+            base_parameters:
+              source_root: '${workspace.file_path}'
+targets:
+  dev:
+    default: true
+    mode: development

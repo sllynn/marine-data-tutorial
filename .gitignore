@@ -4,3 +4,8 @@ __pycache__/
 .databricks/
 .ruff_cache/
 .DS_Store
+
+# Python package build outputs
+dist/
+build/
+*.egg-info/
