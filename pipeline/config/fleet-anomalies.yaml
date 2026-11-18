@@ -1,0 +1,63 @@
+# For generator inspection + notebook 00 experiments, not the existing tracks job.
+# Coordinates/land bounds below are illustrative synthetic fixtures, not charts.
+seed: 42
+start_time: '2026-10-23T00:00:00Z'
+vessels: 12
+reports_per_vessel: 60
+cadence_seconds: 60
+release_seconds: 600
+speed_knots: [12, 20]
+port_dwell_minutes: 20
+jitter_metres: 5
+lane_sigma_metres: 20
+dropout_percent: 0
+duplicate_percent: 5
+lateness_percent: 5
+lateness_max_seconds: 1200
+ports:
+  - {name: Dover, lon: 1.335, lat: 51.115, region: Channel}
+  - {name: Calais, lon: 1.85, lat: 50.985, region: Channel}
+port_pairs:
+  - [Dover, Calais]
+anomalies:
+  - id: synthetic-inland
+    type: inland
+    vessels: [0]
+    start_tick: 5
+    end_tick: 10
+    land_bounds: [1.10, 51.25, 1.30, 51.35]
+    jitter_metres: 20
+  - {id: jump-return, type: jump, vessels: [1], start_tick: 15, end_tick: 15, lon: 2.5, lat: 52.0}
+  - id: fast-circle
+    type: circle
+    vessels: [2]
+    start_tick: 5
+    end_tick: 29
+    center_lon: 1.55
+    center_lat: 50.95
+    radius_metres: 5000
+    period_seconds: 720
+    motion_mode: constant
+    reported_sog_knots: 16
+  - id: slow-circle-control
+    type: circle
+    vessels: [3]
+    start_tick: 0
+    end_tick: 30
+    center_lon: 1.65
+    center_lat: 50.95
+    radius_metres: 100
+    period_seconds: 1800
+    motion_mode: consistent
+  - {id: frozen-moving, type: frozen, vessels: [4], start_tick: 8, end_tick: 16, reported_sog_knots: 16}
+  - id: unavailable-position
+    type: fields
+    vessels: [5]
+    start_tick: 10
+    end_tick: 12
+    values: {LON: 181, LAT: 91, SOG: 102.3, COG: 360, Heading: 511}
+  - {id: future-observation, type: future_time, vessels: [6], start_tick: 15, end_tick: 15, offset_seconds: 7200}
+  - {id: missing-interval, type: gap, vessels: [7], start_tick: 8, end_tick: 12}
+  - {id: missing-motion-control, type: fields, vessels: [8], start_tick: 8, end_tick: 12, values: {SOG: null, COG: null, Heading: null}}
+  - {id: stationary-control, type: frozen, vessels: [10], start_tick: 8, end_tick: 20, reported_sog_knots: 0}
+# Vessels 9 and 11 retain ordinary baseline movements.

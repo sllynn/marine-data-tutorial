@@ -1,0 +1,14 @@
+{
+  "dataset": "Natural Earth 1:10m land",
+  "source_url": "https://raw.githubusercontent.com/nvkelso/natural-earth-vector/ace5fed0eaf3c6c03c951e75b439ba8fffbc218e/geojson/ne_10m_land.geojson",
+  "source_commit": "ace5fed0eaf3c6c03c951e75b439ba8fffbc218e",
+  "source_sha256": "1ac90796408bc6ad6911d69448485d3c4dbf2190370080368a09976e1c9f7416",
+  "licence": "Public domain",
+  "licence_url": "https://www.naturalearthdata.com/about/terms-of-use/",
+  "geographic_crs": "EPSG:4326",
+  "bundled_crs": "EPSG:32605 — WGS 84 / UTM zone 5N",
+  "selection": "Polygon containing longitude -155.5, latitude 19.6; island of Hawaiʻi only",
+  "processing": "Reprojected with PROJ through pyproj; rounded to millimetres; no additional simplification",
+  "csv_sha256": "a275cb8c81b769bdc137351e67327a6afaef4806c2cdda75d52ee647245238ce",
+  "limitations": "Generalised 1:10m cartography, unsuitable for navigation or precise shoreline decisions. The tutorial's 150-metre band is a configurable teaching threshold, not a source-accuracy estimate."
+}

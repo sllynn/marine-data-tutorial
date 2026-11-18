@@ -122,6 +122,12 @@ def release(spark, prefix, round_index):
 
 def run(spark, dbutils, prefix, config_path, vessels=None, reports=None):
     c = load_config(config_path)
+    if c.get("anomalies"):
+        raise ValueError(
+            "Anomaly scenarios are for independent screening experiments. "
+            "This connected pipeline does not yet apply quality checks or propagate their labels; "
+            "use notebooks/00_position_quality_and_anomalies.py. No outputs were reset."
+        )
     if vessels is not None:
         c["vessels"] = int(vessels)
     if reports is not None:

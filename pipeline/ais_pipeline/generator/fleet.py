@@ -15,6 +15,7 @@ import yaml
 
 from .routing import Leg, RouteCache
 from .world import World, haversine_km
+from .anomalies import perturb, validate_scenarios
 
 
 def load_config(path):
@@ -36,6 +37,7 @@ def load_config(path):
     if not c["port_pairs"] or any(len(p) != 2 or p[0] == p[1] or not set(p) <= names for p in c["port_pairs"]):
         raise ValueError("Each port pair must name two distinct configured ports")
     c["start_epoch"] = int(datetime.fromisoformat(c["start_time"].replace("Z", "+00:00")).timestamp())
+    validate_scenarios(c)
     return c
 
 
@@ -73,6 +75,31 @@ def vessel_reports(index, config, routes):
     RNG state is private to one vessel, so repartitioning preserves the output.
     `arrival_batch` is a release bucket, not the observation timestamp.
     """
+    for receptions, _ in vessel_events(index, config, routes):
+        yield from receptions
+
+
+def vessel_truth(index, config, routes):
+    """Yield the separate evaluation ledger, including every missing nominal tick.
+
+    This replays deterministic simulation; never pass its rows to a detector.
+    ``vessel_events`` avoids replay when both receptions and truth are needed.
+    """
+    for _, truth in vessel_events(index, config, routes):
+        yield truth
+
+
+def vessel_events(index, config, routes):
+    """Yield ``(receptions_tuple, truth_row)`` for each nominal simulation tick.
+
+    Existing feed output is identical when anomalies are absent/empty. Scenario
+    perturbations have their own random stream and do not alter baseline delivery
+    random draws. Enabled feeds also carry immutable ``received_at`` metadata:
+    the end of the scheduled delivery bucket, not the reported observation time.
+    """
+    scenarios = validate_scenarios(config)
+    selected = [s for s in scenarios if index in s["vessels"]]
+    anchors = {}
     rng = random.Random(config["seed"] + index * 1000003)
     legs = routes[index % len(routes)]
     direction = index % 2
@@ -104,8 +131,7 @@ def vessel_reports(index, config, routes):
         lat += (offset * math.cos(beta) + rng.gauss(0, config["jitter_metres"])) / 111320
         t = config["start_epoch"] + tick * dt
         delay = min(rng.lognormvariate(0, 1) * 300, config["lateness_max_seconds"]) if rng.random() * 100 < config["lateness_percent"] else 0
-        if rng.random() * 100 < config["dropout_percent"]:
-            continue
+        baseline_dropped = rng.random() * 100 < config["dropout_percent"]
         batch = int((tick * dt + delay) // config["release_seconds"])
         obs_id = hashlib.sha256(f"{index}|{t}|{lon:.7f}|{lat:.7f}".encode()).hexdigest()[:20]
         record = dict(
@@ -116,7 +142,35 @@ def vessel_reports(index, config, routes):
             Length=150.0, Width=24.0, Draft=7.5, Cargo=70, TransceiverClass="A",
             obs_id=obs_id, event_time_s=t, source="receiver-1", arrival_batch=batch,
         )
+        baseline = dict(record)
+        scenario = next((s for s in selected if s["start_tick"] <= tick <= s["end_tick"]), None)
+        record, scenario_dropped = perturb(record, scenario, index, tick, config, anchors)
+        if scenario is not None:
+            def token(value):
+                return "null" if value is None else f"{value:.7f}"
+            obs_id = hashlib.sha256(f"{index}|{record['event_time_s']}|{token(record['LON'])}|{token(record['LAT'])}".encode()).hexdigest()[:20]
+            record["obs_id"] = obs_id
+            record["LON"] = None if record["LON"] is None else round(record["LON"], 7)
+            record["LAT"] = None if record["LAT"] is None else round(record["LAT"], 7)
+        if scenarios:
+            record["received_at"] = datetime.fromtimestamp(
+                config["start_epoch"] + (batch + 1) * config["release_seconds"], timezone.utc)
+        # Preserve the original random call schedule even when a scenario gap
+        # suppresses delivery. Baseline dropout did not draw a duplicate value.
+        duplicate = not baseline_dropped and rng.random() * 100 < config["duplicate_percent"]
         record["reception_id"] = obs_id + "-1"
-        yield record
-        if rng.random() * 100 < config["duplicate_percent"]:
-            yield {**record, "source": "receiver-2", "reception_id": obs_id + "-2"}
+        receptions = ()
+        if not baseline_dropped and not scenario_dropped:
+            receptions = (record,)
+            if duplicate:
+                receptions += ({**record, "source": "receiver-2", "reception_id": obs_id + "-2"},)
+        truth = dict(
+            vessel_index=index, tick=tick, scenario_id=None if scenario is None else scenario["id"],
+            scenario_type=None if scenario is None else scenario["type"],
+            baseline_time=baseline["BaseDateTime"], baseline_lon=baseline["LON"], baseline_lat=baseline["LAT"],
+            reported_time=record["BaseDateTime"], reported_lon=record["LON"], reported_lat=record["LAT"],
+            arrival_batch=batch, baseline_dropped=baseline_dropped, scenario_dropped=scenario_dropped,
+            emitted=bool(receptions), obs_id=obs_id if receptions else None,
+            reception_ids=[r["reception_id"] for r in receptions],
+        )
+        yield receptions, truth

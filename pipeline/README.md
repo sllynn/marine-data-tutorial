@@ -86,10 +86,23 @@ extrapolating throughput.
 
 ## Local checks
 
+For opt-in inland/jump/circle and field-quality scenarios, see [ANOMALIES.md](ANOMALIES.md).
+These generate deliberately incorrect reports alongside normal movement, with expected
+results saved separately for testing. The connected job does not yet apply the quality
+checks or carry their labels into tracks and callings. It therefore rejects an enabled
+anomaly configuration before resetting outputs.
+The standalone [quality notebook](../notebooks/00_position_quality_and_anomalies.py)
+demonstrates the checks and quality labels on its own batch of test data.
+
 ```sh
+python -m pip install -e '.[test]'
 python tools/sync_notebook_code.py --check
 PYTHONPATH=. python -m unittest discover -s tests
 ```
+
+The quality notebook's local numeric tests use PROJ through `pyproj` as an
+independent coordinate-conversion reference. The Databricks notebook uses
+native `ST_Transform` for projection and `pyproj.Geod.inv` for ellipsoidal distances.
 
 After editing notebook algorithms, regenerate the extracted functions with
 `python tools/sync_notebook_code.py`, then repeat the checks and job run.

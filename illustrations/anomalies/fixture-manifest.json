@@ -1,0 +1,27 @@
+{
+  "source_notebook": "notebooks/00_position_quality_and_anomalies.py",
+  "source_sha256": "52affb707c8fde2e6ac764de52cfd71aa3cae2f17adc634c290d06f007c08192",
+  "fixture_notebook": "notebooks/resources/ais_anomaly_fixtures.py",
+  "fixture_sha256": "b8ae05a326879eb827809b8198ee23d8444057761dbf9ddd2d91beb72a00d373",
+  "fixture_function": "fixture_observations",
+  "purpose": "Synthetic input illustration; no detector results or execution claims",
+  "land_csv": "notebooks/data/hawaii_land_utm.csv",
+  "land_csv_sha256": "a275cb8c81b769bdc137351e67327a6afaef4806c2cdda75d52ee647245238ce",
+  "land_srid": 32605,
+  "coastal_tolerance_metres": 150.0,
+  "distance_model": "WGS84 ellipsoid, pyproj.Geod.inv",
+  "circles": {
+    "fast": {
+      "n_observations": 25,
+      "span_minutes": 24.0,
+      "reported_sog_knots": 16.0,
+      "median_implied_knots": 83.75366801563005
+    },
+    "slow": {
+      "n_observations": 31,
+      "span_minutes": 30.0,
+      "reported_sog_knots": 0.6785297307969316,
+      "median_implied_knots": 0.6765882501777374
+    }
+  }
+}

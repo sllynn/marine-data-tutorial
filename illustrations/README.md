@@ -2,6 +2,16 @@
 
 [Open the offline gallery](gallery.html). SVGs are editable sources; PNGs are exported at 2400 pixels wide. The gallery uses the same artwork without external services or fonts.
 
+## Position quality and anomalies
+
+These figures accompany the position checks in [notebook 00](../notebooks/00_position_quality_and_anomalies.py).
+
+1. [How position errors reach an AIS dataset](anomalies/01-position-to-feed.svg): errors during position calculation, AIS broadcast, reception and feed delivery.
+2. [Checking whether a reported position is on land](anomalies/02-land-and-coast.svg): Natural Earth’s outline of Hawaiʻi in UTM zone 5N, with synthetic inland and offshore reports and a coastal close-up. The 150 m band illustrates a configurable threshold.
+3. [Comparing fast and slow circular tracks](anomalies/03-fast-circle.svg): a 5-km-radius circle repeating every 12 minutes and a 100-metre-radius circle repeating every 30 minutes, plotted at **different scales**. Each panel compares reported SOG with speed calculated from the positions.
+
+All three have 2400-pixel-wide PNG exports. Rebuild with `uv run --no-project --with pyproj python tools/build_anomaly_illustrations.py` from this directory, with `rsvg-convert` installed. The renderer reads the fixture helper's test data without running Spark setup. The [fixture manifest](anomalies/fixture-manifest.json) records the main and helper notebook hashes, coastline file and calculated speeds so the figures can be reproduced.
+
 ## AIS reception network
 
 [How AIS works](ais/01-how-ais-works.svg): Class A and Class B vessel transponders, ship-to-ship and shore reception, and low Earth orbit satellite collection with a ground downlink. [Standalone preview](ais/01-how-ais-works.html).
