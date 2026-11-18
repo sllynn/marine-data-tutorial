@@ -4,8 +4,8 @@ build-backend = "hatchling.build"
 [project]
 name = "marine-data-tutorial-pipeline"
 version = "0.1.0"
-requires-python = ">=3.10"
-dependencies = ["searoute==1.4.3", "PyYAML==6.0.2"]
+requires-python = ">=3.11"
+dependencies = ["searoute==1.4.3", "PyYAML==6.0.2", "numpy", "pandas", "pyproj==3.7.2", "circle-fit==0.2.1"]
 [project.optional-dependencies]
 test = ["numpy", "pandas", "pyproj==3.7.2", "circle-fit==0.2.1"]
 [tool.hatch.build.targets.wheel]

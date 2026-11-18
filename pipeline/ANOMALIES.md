@@ -6,10 +6,12 @@ Use these scenarios to test position checks like those in notebook **00 · Posit
 quality and anomalies**. The sizes, speeds and frequencies are configurable test
 settings chosen for these examples.
 
-Generate these scenarios separately from the connected track/calling job. It does
-not check invalid coordinates before spatial calculations or carry the quality
-labels into tracks and callings. The job rejects anomaly-enabled
-configurations before resetting its tables.
+The connected job accepts `config=fleet-anomalies.yaml`. It screens invalid inputs
+before track calculations and publishes quality labels alongside resolved positions
+and calling summaries. See [the pipeline guide](README.md#quality-screening) for the
+reassessment and admission rules. You can also generate reports independently below.
+The configuration includes an explicit synthetic land reference rectangle; replace
+it and its coverage with suitable coastline data for a real land check.
 
 ## Generate reports and expected results
 
@@ -81,7 +83,9 @@ Interpret these according to the actual feed contract before geometry or motion
 calculations. Missing optional motion alone need not invalidate a position.
 
 The fast example has radius 5 km and period 12 minutes, sampled every minute for
-two rotations. Its arc speed is about 85 knots and its inter-report implied speed
+35 reports. The fast-circle and frozen-moving episodes each last long enough to
+contain a full 30-minute detector window without surrounding baseline positions.
+Its arc speed is about 85 knots and its inter-report implied speed
 about 84 knots, while reported SOG is 16 knots. The slow-circle control has radius
 100 metres and period 30 minutes, about 0.68 knots. Tune these settings for your
 own tests. A position can jump when a replacement scenario starts or ends;

@@ -1,9 +1,10 @@
 # Generate a fleet and process its calling history
 
-This companion job releases AIS reports into Bronze, resolves tracks, associates
+This companion job releases AIS reports into Bronze, assesses position quality, resolves tracks, associates
 track evidence with a synthetic vessel registry, and computes port/berth callings.
-The track resolver and calling callback are extracted verbatim from the teaching
+The quality rules, track resolver and calling callback are extracted from the teaching
 notebooks. `tools/sync_notebook_code.py --check` verifies they remain identical.
+The quality adapter supplies the demo's reception clock and local spatial reference.
 The identity bridge expresses notebook 1's evidence-matching rules as distributed
 joins: every item must have a unique, consistent, time-valid registry match.
 
@@ -60,6 +61,50 @@ reports per vessel. Increasing reports extends simulated observation time;
 increasing vessels increases fleet size. Keep cadence and release intervals
 small relative to notebook 1's 45-minute correction window. A delay outside that
 window stays in Bronze and is excluded from accepted Silver positions.
+The `config` parameter selects a file under `config/` (default `fleet.yaml`). To run
+the opt-in anomaly examples after deployment:
+
+```sh
+databricks bundle run ais_pipeline --profile YOUR_PROFILE --var catalog=YOUR_CATALOG --params config=fleet-anomalies.yaml
+```
+
+Overrides must still include every configured anomaly vessel and tick; they are
+validated before outputs are reset.
+
+## Quality screening
+
+Before each release reaches tracks, the job reassesses all received Bronze history
+using notebook 00's field/time, neighbour-motion and overlapping circle-window rules.
+`quality_observations` retains every observation, including invalid inputs, with
+measurements, flags, rule outcomes, reasons and assessment time. Invalid coordinate,
+timestamp or observation-payload inputs do not enter the track resolver. Optional
+motion fields and advisory land/jump/circle flags do not exclude a valid position.
+Reception timestamps are immutable synthetic delivery-bucket times, independent of
+the reported observation clock; simulation truth never enters the detector feed.
+
+The default spatial projection is UTM 31N for Dover–Calais. Change
+`quality.projected_srid` when changing region. Optional `quality.land_wkt` and
+`quality.coverage_wkt` are explicit WGS84 reference polygons; both are required
+together. Without them, the inland rule is `not_assessed`. The anomaly configuration
+supplies a **synthetic land rectangle**, separate from the feed, to exercise that
+rule. It is not a real coastline. The notebook's Hawaiʻi mask is not used here.
+
+Late arrivals can revise earlier quality labels. This demo recomputes its full
+received history, including overlapping window membership, rather than bounding
+quality corrections to the track resolver's separate 45-minute window. Grouped
+Pandas holds each MMSI's history in memory: this is a small demo implementation.
+`quality_inputs_staging` and `quality_metrics_staging` materialize intermediate
+calculations; `quality_window_members` preserves the window evidence.
+
+Inspect `silver_track_positions_with_quality`,
+`silver_resolved_positions_with_quality` and `gold_callings_with_quality` for current
+labels and calling summaries. Summaries cover resolved observations between entry
+and last seen, and do not establish whether the calling is physically correct.
+These views reflect revised labels without altering track or calling membership.
+Advisory findings are never mutable suppression instructions. The generator's
+immutable observations make input validity stable across releases; arbitrary feed
+payload corrections would require downstream retraction support before admission
+changes could be propagated safely.
 
 ## Inspect the result
 
@@ -70,7 +115,7 @@ visits from current Silver history. This finite job keeps the stages synchronize
 between releases. It is suitable for reproducible experiments with streaming
 micro-batches.
 
-`round_metrics` records the release write, track, identity and calling times.
+`round_metrics` records the release write, quality, track, identity and calling times.
 `arrival_to_gold_s` is elapsed time from completion of the Bronze release write
 to completion of Gold publication, including stream start/drain overhead. It is
 **whole-release latency**, covering every vessel in that release. It excludes
@@ -88,9 +133,8 @@ extrapolating throughput.
 
 For opt-in inland/jump/circle and field-quality scenarios, see [ANOMALIES.md](ANOMALIES.md).
 These generate deliberately incorrect reports alongside normal movement, with expected
-results saved separately for testing. The connected job does not yet apply the quality
-checks or carry their labels into tracks and callings. It therefore rejects an enabled
-anomaly configuration before resetting outputs.
+results available separately for testing. The connected job applies the same quality
+rules before tracking and exposes their current labels through the quality views.
 The standalone [quality notebook](../notebooks/00_position_quality_and_anomalies.py)
 demonstrates the checks and quality labels on its own batch of test data.
 
@@ -107,4 +151,4 @@ native `ST_Transform` for projection and `pyproj.Geod.inv` for ellipsoidal dista
 After editing notebook algorithms, regenerate the extracted functions with
 `python tools/sync_notebook_code.py`, then repeat the checks and job run.
 
-The [validation record](VALIDATION.md) reports the completed end-to-end smoke run and explains the scope of its timings.
+The [validation record](VALIDATION.md) distinguishes historical timings from the quality-enabled validation.

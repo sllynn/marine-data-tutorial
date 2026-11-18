@@ -2,7 +2,7 @@
 # MAGIC %md
 # MAGIC # Generate AIS positions and follow them through to callings
 # MAGIC Configure port pairs in `config/fleet.yaml`. Each release is appended to Bronze,
-# MAGIC then three checkpointed streams drain in order: tracks, registry association,
+# MAGIC then quality labels refresh before three checkpointed streams drain: tracks, registry association,
 # MAGIC and calling history. `round_metrics` records timings for each complete release.
 # MAGIC Run all resets this pipeline's owned tables and checkpoint folder.
 # COMMAND ----------
@@ -14,13 +14,14 @@ dbutils.widgets.text("schema", "ais_pipeline_tutorial")
 dbutils.widgets.text("vessels", "")
 dbutils.widgets.text("reports", "")
 dbutils.widgets.text("source_root", "")
+dbutils.widgets.text("config", "fleet.yaml")
 root = dbutils.widgets.get("source_root") or str(Path.cwd().parent)
 sys.path.insert(0, root)
 from ais_pipeline.runner import run
 from ais_pipeline.validation import validate
 
 prefix = dbutils.widgets.get("catalog") + "." + dbutils.widgets.get("schema")
-summary = run(spark, dbutils, prefix, str(Path(root) / "config/fleet.yaml"),
+summary = run(spark, dbutils, prefix, str(Path(root) / "config" / dbutils.widgets.get("config")),
               int(dbutils.widgets.get("vessels")) if dbutils.widgets.get("vessels") else None,
               int(dbutils.widgets.get("reports")) if dbutils.widgets.get("reports") else None)
 summary["validation"] = validate(spark, prefix)

@@ -23,6 +23,7 @@ resources:
         - {name: schema, default: '${var.schema}'}
         - {name: vessels, default: ''}
         - {name: reports, default: ''}
+        - {name: config, default: 'fleet.yaml'}
       environments:
         - environment_key: ais
           spec:

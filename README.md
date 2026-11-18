@@ -10,7 +10,7 @@ Three Databricks notebooks accompany the blog: screen reported positions, resolv
 | [01 · Identity, tracks and late data](notebooks/01_identity_tracks_and_late_data.py) | H3 candidate generation, spatial motion checks, distributed track replay and an introduction to registry identity evidence |
 | [02 · Port and berth callings](notebooks/02_port_and_berth_callings.py) | Indexed location matching, consecutive inside runs, departure evidence and atomic publication of corrected calling histories |
 
-The [generator-backed end-to-end companion](pipeline/README.md) connects generated receptions, track resolution, registry association and calling publication. Its [opt-in anomaly scenarios](pipeline/ANOMALIES.md) let you generate questionable reports separately for screening experiments.
+The [generator-backed end-to-end companion](pipeline/README.md) connects generated receptions, quality screening, track resolution, registry association and calling publication. Its [opt-in anomaly scenarios](pipeline/ANOMALIES.md) exercise the quality checks in the connected job or in separate generator experiments.
 
 Read them in order. Each notebook generates its own small synthetic dataset and runs independently. Notebook 00 publishes observations with quality labels; notebook 01 illustrates registry association separately from its streamed track output; notebook 02 begins with resolved `vessel_id` values. Running one notebook does not supply another notebook's input.
 
@@ -56,4 +56,4 @@ These were single serverless runs over two locations. Work increased with data v
 
 The [streaming companion](pipeline/README.md) provides a YAML-configured `searoute` fleet generator and a Lakeflow job that connects the notebook algorithms through Bronze, track Silver, resolved Silver and Gold callings. It includes release-to-Gold timings and end-to-end checks.
 
-Generate the anomaly scenarios separately from the connected job. That job does not yet apply the quality checks or carry their labels into tracks and callings, so it rejects this configuration before resetting any outputs. Notebook 00 demonstrates the quality checks independently. The calling timings above cover only the calling stage; measure the quality notebook separately.
+The connected job runs notebook 00's quality rules over received history before tracking. It retains all observations in its quality output, withholds invalid inputs from track calculations, and exposes advisory labels with resolved positions and calling summaries. Select `config=fleet-anomalies.yaml` for the anomaly examples. The calling timings above predate this integration and cover only the calling stage.

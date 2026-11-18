@@ -1,4 +1,4 @@
-# For generator inspection + notebook 00 experiments, not the existing tracks job.
+# Opt-in connected quality/track/calling demo and standalone generator experiments.
 # Coordinates/land bounds below are illustrative synthetic fixtures, not charts.
 seed: 42
 start_time: '2026-10-23T00:00:00Z'
@@ -19,6 +19,12 @@ ports:
   - {name: Calais, lon: 1.85, lat: 50.985, region: Channel}
 port_pairs:
   - [Dover, Calais]
+quality:
+  projected_srid: 32631
+  # Synthetic reference rectangle, deliberately separate from the detector feed.
+  # This is a teaching mask, not a Channel coastline or navigational chart.
+  land_wkt: 'POLYGON ((1.10 51.25,1.30 51.25,1.30 51.35,1.10 51.35,1.10 51.25))'
+  coverage_wkt: 'POLYGON ((1.0 50.8,2.1 50.8,2.1 51.5,1.0 51.5,1.0 50.8))'
 anomalies:
   - id: synthetic-inland
     type: inland
@@ -32,7 +38,8 @@ anomalies:
     type: circle
     vessels: [2]
     start_tick: 5
-    end_tick: 29
+    # Include a complete 30-minute fitting window within the episode.
+    end_tick: 39
     center_lon: 1.55
     center_lat: 50.95
     radius_metres: 5000
@@ -49,7 +56,7 @@ anomalies:
     radius_metres: 100
     period_seconds: 1800
     motion_mode: consistent
-  - {id: frozen-moving, type: frozen, vessels: [4], start_tick: 8, end_tick: 16, reported_sog_knots: 16}
+  - {id: frozen-moving, type: frozen, vessels: [4], start_tick: 8, end_tick: 42, reported_sog_knots: 16}
   - id: unavailable-position
     type: fields
     vessels: [5]

@@ -8,6 +8,14 @@ def validate(spark, prefix):
     tracks = spark.table(prefix + ".silver_track_positions")
     resolved = spark.table(prefix + ".silver_resolved_positions")
     gold = spark.table(prefix + ".gold_callings")
+    quality = spark.table(prefix + ".quality_observations")
+    bronze_ids = spark.table(prefix + ".bronze_receptions").select("obs_id").distinct()
+    assert quality.count() == bronze_ids.count(), "Quality assessment lost observations"
+    assert quality.select("obs_id").distinct().count() == quality.count()
+    assert bronze_ids.join(quality, "obs_id", "left_anti").isEmpty()
+    assert tracks.join(quality.where("NOT input_evaluable"), "obs_id").isEmpty(), "Invalid input reached tracks"
+    assert spark.table(prefix + ".silver_resolved_positions_with_quality").where("quality_status IS NULL").isEmpty()
+    assert spark.table(prefix + ".gold_callings_with_quality").count() == gold.count()
     assert tracks.count() > 0, "No accepted positions"
     assert gold.count() > 0, "No port calls: extend simulation to reach port"
     assert tracks.select("obs_id").distinct().count() == tracks.count()

@@ -3,15 +3,17 @@ import json
 import re
 import time
 from functools import partial
+from datetime import datetime, timezone
 
 import pandas as pd
 from delta.tables import DeltaTable
 from pyspark.sql import functions as F
 
-from . import tracks, callings, identity
+from . import tracks, callings, identity, quality
 from .generator.fleet import build_routes, imo_for, load_config, vessel_reports
+from .generator.anomalies import validate_scenarios
 
-FEED_SCHEMA = tracks.AIS_SCHEMA + ", obs_id string, event_time_s long, source string, arrival_batch int, reception_id string"
+FEED_SCHEMA = tracks.AIS_SCHEMA + ", obs_id string, event_time_s long, source string, arrival_batch int, reception_id string, received_at timestamp"
 RESOLVED_SCHEMA = tracks.AIS_SCHEMA + ", obs_id string, event_time_s long, vessel_id string, arrival_batch int, track_id string, track_status string, sources array<string>, resolved_imo string, identity_status string"
 GOLD_SCHEMA = "vessel_id string, location_id string, entry_ts timestamp, last_seen_ts timestamp, exit_ts timestamp, n_positions long, as_of_ts timestamp"
 
@@ -29,7 +31,8 @@ def configure_callings(prefix):
 
 def track_batch(df, batch_id, prefix):
     tracks.SILVER = prefix + ".silver_track_positions"
-    tracks.process_micro_batch(df, batch_id)
+    admitted = quality.track_inputs(df, df.sparkSession.table(prefix + ".quality_observations"))
+    tracks.process_micro_batch(admitted, batch_id)
 
 
 def calling_batch(df, batch_id, prefix):
@@ -58,13 +61,18 @@ def generate(spark, config_path, prefix, c):
         for pdf in iterator:
             for index in pdf["id"]:
                 for record in vessel_reports(int(index), c, routes):
+                    # The default generator API stays byte-for-byte compatible.
+                    # Add the same immutable synthetic reception clock at this adapter.
+                    record.setdefault("received_at", datetime.fromtimestamp(
+                        c["start_epoch"] + (record["arrival_batch"] + 1) * c["release_seconds"], timezone.utc))
                     pending.append(record)
                     if len(pending) >= 5000:
                         yield pd.DataFrame(pending)
                         pending = []
         if pending:
             yield pd.DataFrame(pending)
-    spark.range(c["vessels"]).mapInPandas(emit, FEED_SCHEMA).write.mode("overwrite").saveAsTable(prefix + ".release_schedule")
+    (spark.range(c["vessels"]).mapInPandas(emit, FEED_SCHEMA).write.mode("overwrite")
+     .option("overwriteSchema", "true").saveAsTable(prefix + ".release_schedule"))
     # Registry is external identity evidence; truth IDs never enter the AIS feed.
     rows = [(f"vessel-{i}", imo_for(i), f"TUTORIAL VESSEL {i}", f"TUT{i}",
              c["start_epoch"] - 86400, c["start_epoch"] + c["reports_per_vessel"] * c["cadence_seconds"] + 86400)
@@ -122,18 +130,15 @@ def release(spark, prefix, round_index):
 
 def run(spark, dbutils, prefix, config_path, vessels=None, reports=None):
     c = load_config(config_path)
-    if c.get("anomalies"):
-        raise ValueError(
-            "Anomaly scenarios are for independent screening experiments. "
-            "This connected pipeline does not yet apply quality checks or propagate their labels; "
-            "use notebooks/00_position_quality_and_anomalies.py. No outputs were reset."
-        )
     if vessels is not None:
         c["vessels"] = int(vessels)
     if reports is not None:
         c["reports_per_vessel"] = int(reports)
     if c["vessels"] <= 0 or c["reports_per_vessel"] <= 0:
         raise ValueError("Vessels and reports must be positive")
+    validate_scenarios(c)  # Recheck ranges after overrides, before setup resets tables.
+    options = quality.settings(c)
+    quality.check_reference(spark, options)
     checkpoint = setup(spark, dbutils, prefix, config_path, c)
     rounds = spark.table(prefix + ".release_schedule").agg(F.max("arrival_batch")).first()[0] + 1
     metrics = []
@@ -141,20 +146,24 @@ def run(spark, dbutils, prefix, config_path, vessels=None, reports=None):
         start = time.monotonic()
         release(spark, prefix, i)
         released = time.monotonic()
+        quality.assess(spark, prefix, options)
+        screened = time.monotonic()
         drain(spark, prefix + ".bronze_receptions", partial(track_batch, prefix=prefix), checkpoint + "/tracks")
         tracked = time.monotonic()
         drain(spark, prefix + ".silver_track_positions", partial(identity.process_batch, prefix=prefix), checkpoint + "/identity", True)
         resolved = time.monotonic()
         drain(spark, prefix + ".silver_resolved_positions", partial(calling_batch, prefix=prefix), checkpoint + "/callings", True)
         finished = time.monotonic()
+        quality.create_views(spark, prefix)
         # Metrics exclude subsequent inspection queries. This is whole-release
         # latency, including stream start/drain overhead, never per-vessel latency.
-        row = dict(arrival_batch=i, release_s=released-start, track_s=tracked-released,
+        row = dict(arrival_batch=i, release_s=released-start, quality_s=screened-released, track_s=tracked-screened,
                    identity_s=resolved-tracked, calling_s=finished-resolved,
                    arrival_to_gold_s=finished-released, round_s=finished-start)
-        for name in ("bronze_receptions", "silver_track_positions", "silver_resolved_positions", "gold_callings"):
+        for name in ("bronze_receptions", "quality_observations", "silver_track_positions", "silver_resolved_positions", "gold_callings"):
             row[name] = spark.table(prefix + "." + name).count()
         metrics.append(row)
-        spark.createDataFrame(metrics).write.mode("overwrite").saveAsTable(prefix + ".round_metrics")
+        (spark.createDataFrame(metrics).write.mode("overwrite").option("overwriteSchema", "true")
+         .saveAsTable(prefix + ".round_metrics"))
         print(json.dumps(row), flush=True)
     return {"prefix": prefix, "rounds": metrics, "vessels": c["vessels"], "reports_per_vessel": c["reports_per_vessel"]}
