@@ -19,12 +19,7 @@ ports:
   - {name: Calais, lon: 1.85, lat: 50.985, region: Channel}
 port_pairs:
   - [Dover, Calais]
-quality:
-  projected_srid: 32631
-  # Synthetic reference rectangle, deliberately separate from the detector feed.
-  # This is a teaching mask, not a Channel coastline or navigational chart.
-  land_wkt: 'POLYGON ((1.10 51.25,1.30 51.25,1.30 51.35,1.10 51.35,1.10 51.25))'
-  coverage_wkt: 'POLYGON ((1.0 50.8,2.1 50.8,2.1 51.5,1.0 51.5,1.0 50.8))'
+# Quality screening uses the bundled global land reference automatically.
 anomalies:
   - id: synthetic-inland
     type: inland

@@ -1,6 +1,50 @@
 # Validation
 
-## Quality integration — 18 November 2026
+## Worldwide quality correction — 18 November 2026
+
+All 35 local tests passed, including global land/index controls, circle and frozen
+controls across hemispheres, the date line, UTM boundaries and exact poles, source
+artifact regressions, configured scenarios and notebook numeric-kernel parity.
+Strict bundle validation passed with `sme`; the built wheel includes the reference
+data and checksum manifest.
+
+The final bundled reference passed a native spatial SQL/serverless environment-6
+run on SME: [worldwide validation 133427725929689](https://fevm-geo-sme-emea.cloud.databricks.com/?o=7474660412302141#job/187447452817578/run/133427725929689).
+One mixed feed contained 935 observations across 12 regions, including both
+hemispheres, crossings of the date line and a UTM zone boundary, and exact poles.
+
+- All 300 fast-circle observations were flagged; all slow-circle and mooring
+  controls passed, and all 156 frozen-with-motion observations were detected.
+- Eleven land and six ocean controls passed, covering every continent, Hawaiʻi,
+  Greenland, both sides of the date line and both poles. Twelve sampled real
+  coastline vertices had native distances below one metre.
+- An antipodal jump retained its reports and raised the geodesic isolated-jump
+  finding. Its nonlocal fitting windows were explicitly unassessed.
+- A valid 1900 report caused no empty-interval scan: all 933 evaluable observations
+  produced only 2,504 window memberships, within the six-per-report bound.
+- Invalid coordinates and a future timestamp remained in quality output and were
+  withheld from tracks; the advisory jump remained admitted.
+- A repeated assessment reproduced all 935 rows, excluding `assessed_at`.
+
+The land tests exposed two source-data issues during development: Natural Earth's
+artificial Null Island rectangle and rounding noise on Antarctic dataset cuts.
+The builder removes the former and normalises coordinates before indexing so the
+latter cannot become false coastline. Regressions cover both.
+
+A separate [connected regression 526620078642570](https://fevm-geo-sme-emea.cloud.databricks.com/?o=7474660412302141#job/519042326722052/run/526620078642570)
+passed with the global adapter and three 30-minute delivery releases. It retained
+747 receptions and 715 observations, withheld four invalid observations, resolved
+all 711 admitted positions, and published 15 callings. Five sampled vessels matched
+the independent calling oracle. Findings included 35 fast-circle, 30 frozen,
+11 inland and one isolated-jump observations. Inland counts differ from the earlier
+regional run because the detector now uses real global land rather than its synthetic
+rectangle. This remains a small integration test, not a fleet-scale benchmark.
+
+Development validation notebooks and raw results are under
+`ais-community-tutorial-development/anomaly-detection/validation/connected-pipeline/`.
+The earlier records below describe the superseded regional reference configuration.
+
+## Earlier regional integration — 18 November 2026
 
 All 27 local tests passed, including numeric detector controls, generator output
 compatibility, configured episode detection amid baseline movement, pre-reset

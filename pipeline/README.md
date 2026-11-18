@@ -4,7 +4,7 @@ This companion job releases AIS reports into Bronze, assesses position quality, 
 track evidence with a synthetic vessel registry, and computes port/berth callings.
 The quality rules, track resolver and calling callback are extracted from the teaching
 notebooks. `tools/sync_notebook_code.py --check` verifies they remain identical.
-The quality adapter supplies the demo's reception clock and local spatial reference.
+The quality adapter supplies the demo's reception clock and selects local projections automatically for worldwide input.
 The identity bridge expresses notebook 1's evidence-matching rules as distributed
 joins: every item must have a unique, consistent, time-valid registry match.
 
@@ -82,17 +82,31 @@ motion fields and advisory land/jump/circle flags do not exclude a valid positio
 Reception timestamps are immutable synthetic delivery-bucket times, independent of
 the reported observation clock; simulation truth never enters the detector feed.
 
-The default spatial projection is UTM 31N for Dover–Calais. Change
-`quality.projected_srid` when changing region. Optional `quality.land_wkt` and
-`quality.coverage_wkt` are explicit WGS84 reference polygons; both are required
-together. Without them, the inland rule is `not_assessed`. The anomaly configuration
-supplies a **synthetic land rectangle**, separate from the feed, to exercise that
-rule. It is not a real coastline. The notebook's Hawaiʻi mask is not used here.
+Quality screening accepts WGS84 observations worldwide in one feed, including the
+poles and crossings of the date line or UTM zones. Neighbour-motion distances use
+ellipsoidal WGS84 measurements. Each complete MMSI/time fitting window uses its own
+observation-centred azimuthal equidistant projection; spatial cells never split a
+window. A window spanning more than 250 km from its first observation is retained
+with `projection_status=nonlocal_extent` and its local geometric checks unassessed.
+Its geodesic neighbour checks still run. Projection definitions and assessment
+status are saved with the window evidence.
+
+The default `quality.land_reference: global` uses bundled Natural Earth 1:10m land,
+with H3 candidate indexes followed by exact geographic land predicates. Nearby
+coastlines use each observation's automatically selected UTM/UPS projection for
+the closest-point calculation and an ellipsoidal distance back in WGS84. The
+150 m coastal tolerance is illustrative: this generalised map is unsuitable for
+navigation or precise shoreline decisions. Where no nearby coastline is indexed,
+`shoreline_distance_m` is null and a conservative 150 m lower bound is recorded.
+Use `quality.land_reference: none` to leave inland checks explicitly unassessed.
+No regional projection or mask setting is needed; old regional options are rejected
+before reset. See [reference provenance and rebuild instructions](ais_pipeline/data/README.md).
 
 Late arrivals can revise earlier quality labels. This demo recomputes its full
-received history, including overlapping window membership, rather than bounding
-quality corrections to the track resolver's separate 45-minute window. Grouped
-Pandas holds each MMSI's history in memory: this is a small demo implementation.
+received history, including overlapping window membership. Each report contributes
+to at most six occupied windows, so long empty historical gaps do not create work
+for every missing interval. Grouped Pandas holds one MMSI/30-minute window in memory;
+this remains a small demo implementation rather than a fleet-scale benchmark.
 `quality_inputs_staging` and `quality_metrics_staging` materialize intermediate
 calculations; `quality_window_members` preserves the window evidence.
 

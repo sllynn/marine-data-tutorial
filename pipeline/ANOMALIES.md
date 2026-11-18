@@ -10,8 +10,9 @@ The connected job accepts `config=fleet-anomalies.yaml`. It screens invalid inpu
 before track calculations and publishes quality labels alongside resolved positions
 and calling summaries. See [the pipeline guide](README.md#quality-screening) for the
 reassessment and admission rules. You can also generate reports independently below.
-The configuration includes an explicit synthetic land reference rectangle; replace
-it and its coverage with suitable coastline data for a real land check.
+The quality stage uses the bundled worldwide land reference. The inland generator
+places synthetic reports within configured bounds; those bounds do not supply the
+detector with land evidence.
 
 ## Generate reports and expected results
 
@@ -66,7 +67,7 @@ the delivery schedule determines when those reports arrive.
 
 | Type | Parameters | Reported effect |
 |---|---|---|
-| `inland` | `land_bounds: [west, south, east, north]`, optional `jitter_metres` | Reports near the centre of an explicit synthetic land rectangle. Jitter is clamped to its interior half. These bounds are not a real coastline. |
+| `inland` | `land_bounds: [west, south, east, north]`, optional `jitter_metres` | Reports near the centre of configured bounds. Jitter is clamped to their interior half. Choose bounds on real land to exercise the global inland check; these bounds are not detector reference data. |
 | `jump` | `lon`, `lat`; one tick only | A displaced report; the following tick resumes baseline simulation. |
 | `circle` | `center_lon`, `center_lat`, `radius_metres`, `period_seconds`; optional `phase_degrees`, `clockwise`, `motion_mode`, `reported_sog_knots` | Geodesic destinations around a centre, with a forward tangent course. `constant` motion reports configured SOG (default 16); `consistent` reports the circular arc speed. |
 | `frozen` | Optional paired `lon`/`lat`; optional `reported_sog_knots` | Holds a fixed location, defaulting to the first nominal baseline position in the interval. Nonzero SOG supplies a contradiction; zero SOG supplies a stationary control. |

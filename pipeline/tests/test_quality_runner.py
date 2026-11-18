@@ -18,13 +18,13 @@ class QualityRunnerTests(unittest.TestCase):
         exec(compile(ast.Module([function("settings", "quality.py")], type_ignores=[]), "quality.py", "exec"), scope)
         return scope["settings"](config)
 
-    def test_no_mask_means_explicit_empty_coverage(self):
-        self.assertEqual(self.settings({})["coverage"], "POLYGON EMPTY")
-        self.assertEqual(self.settings({})["srid"], 32631)
+    def test_default_reference_is_global(self):
+        self.assertEqual(self.settings({}), {"land_reference": "global"})
+        self.assertEqual(self.settings({"quality": {"land_reference": "none"}}), {"land_reference": "none"})
 
     def test_bad_reference_options_fail(self):
-        for options in ({"projected_srid": 4326}, {"land_wkt": "POLYGON EMPTY"},
-                        {"land_wkt": 1, "coverage_wkt": 2}):
+        for options in ({"projected_srid": 4326}, {"projected_srid": 32631},
+                        {"land_wkt": "POLYGON EMPTY"}, {"land_reference": "hawaii"}):
             with self.subTest(options=options), self.assertRaises(ValueError):
                 self.settings({"quality": options})
 

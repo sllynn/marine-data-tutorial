@@ -5,6 +5,9 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 SPECS = {
+    "quality_numeric": ("00_position_quality_and_anomalies.py", {
+        "MAX_EPISODE_S", "WINDOW_STEP_S", "MAX_MOTION_KNOTS", "MIN_WINDOW_S", "fit_circle",
+    }),
     "quality_rules": ("00_position_quality_and_anomalies.py", {
         "MAX_EPISODE_S", "WINDOW_STEP_S", "FUTURE_TOLERANCE_S", "MAX_MOTION_KNOTS",
         "MIN_WINDOW_S", "field_checks", "motion_checks", "fit_circle",
@@ -30,6 +33,9 @@ for module, (notebook, names) in SPECS.items():
         if module == "quality_rules" and imported:
             imported = not (isinstance(node, ast.ImportFrom) and node.module.startswith("matplotlib")) and not (
                 isinstance(node, ast.Import) and any(a.name.startswith("matplotlib") for a in node.names))
+        if module == "quality_numeric" and imported:
+            modules = [a.name for a in node.names] if isinstance(node, ast.Import) else [node.module]
+            imported = all(name in {"numpy", "pyproj", "circle_fit"} for name in modules)
         if imported or key in names:
             selected.append("".join(lines[node.lineno - 1:node.end_lineno]).rstrip())
     result = f'"""Extracted from {notebook}; regenerate with tools/sync_notebook_code.py."""\n\n' + "\n\n".join(selected) + "\n"

@@ -1,0 +1,21 @@
+{
+  "dataset": "Natural Earth 1:10m land",
+  "srid": 4326,
+  "h3_resolution": 3,
+  "source_url": "https://naciscdn.org/naturalearth/10m/physical/ne_10m_land.zip",
+  "source_sha256": "e547d749445eaa0964aba76738090ec88f5e63c4585122170f98c67a7ea922dc",
+  "licence": "Public domain",
+  "licence_url": "https://www.naturalearthdata.com/about/terms-of-use/",
+  "polygons": 6836,
+  "land_cell_pairs": 154065,
+  "coast_cells": 4622,
+  "max_coast_segment_metres": 5000,
+  "candidate_halo": 2,
+  "processing": "Worldwide polygon components excluding the artificial Null Island rectangle at (0,0); geodesically densified coastline, excluding artificial date-line/pole cuts. H3 candidate index only; exact spatial predicates follow.",
+  "limitations": "Generalised cartography, unsuitable for navigation or precise shoreline decisions; 150 m is a teaching threshold, not an accuracy claim.",
+  "files": {
+    "global_coast_cells.csv.gz": "dc3eabd19a596eb4df76b18eaf3c91fed54d64bab369c7cd6778e8ec7f7aaa8c",
+    "global_land.csv.gz": "225f72af2e75552cc86c3fa2f2703adcf8cca79445dd785003b74b13234352ac",
+    "global_land_cells.csv.gz": "c62c524d55917a1253d409f08862db135d5210d1113769c0156075e8805981cd"
+  }
+}

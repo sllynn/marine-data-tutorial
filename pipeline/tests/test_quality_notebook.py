@@ -84,13 +84,19 @@ class QualityNotebookTests(unittest.TestCase):
         config = load_config(NOTEBOOK.parents[1] / "pipeline/config/fleet-anomalies.yaml")
         routes = [[Leg([(1.3, 51.1), (1.8, 51)], [0, 38]),
                    Leg([(1.8, 51), (1.3, 51.1)], [0, 38])]]
-        project = Transformer.from_crs(4326, config["quality"]["projected_srid"], always_xy=True)
+        from ais_pipeline.global_windows import window_members_group
         for vessel, column in ((2, "fast_circle"), (4, "position_unchanged_despite_reported_speed")):
             with self.subTest(vessel=vessel):
                 frame = pd.DataFrame(vessel_reports(vessel, config, routes)).drop_duplicates("obs_id")
-                frame["x_m"], frame["y_m"] = project.transform(frame.LON, frame.LAT)
                 frame["sog_known"] = True
-                members = self.n["window_members_group"](frame)
+                groups = []
+                for end in range((int(frame.event_time_s.min()) // 300 + 1) * 300,
+                                 (int(frame.event_time_s.max()) // 300 + 1) * 300 + 1, 300):
+                    group = frame[(frame.event_time_s >= end - 1800) & (frame.event_time_s < end)].copy()
+                    group["window_end_s"] = end
+                    if len(group):
+                        groups.append(window_members_group(group))
+                members = pd.concat(groups)
                 self.assertTrue(members[column].any(), f"No full detector window for vessel {vessel}")
 
     def test_slow_circle_is_geometric_candidate_not_fast(self):
